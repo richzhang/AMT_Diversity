@@ -135,17 +135,20 @@ function setBodyHeight() {
   $('body').height(wh); // body height = window height
 }
 
-function sequence_helper(gt_side,image_left,image_right) {
+function sequence_helper(image_p0,image_ref,image_p1) {
 	var curr_im = null;
-	p.gt_side.push(gt_side);
+
 	curr_im = new Image();
-	// curr_im.src = base_url + image_left + '.jpg';
-	curr_im.src = base_url + image_left + '.png';
-	p.images_left.push(curr_im);
+	curr_im.src = base_url + image_p0 + '.png';
+	p.images_p0.push(curr_im);
+
 	curr_im = new Image();
-	// curr_im.src = base_url + image_right + '.jpg';
-	curr_im.src = base_url + image_right + '.png';
-	p.images_right.push(curr_im);
+	curr_im.src = base_url + image_ref + '.png';
+	p.images_ref.push(curr_im);
+
+	curr_im = new Image();
+	curr_im.src = base_url + image_p1 + '.png';
+	p.images_p1.push(curr_im);
 }
 
 function makeExperiment() {
@@ -159,10 +162,10 @@ function makeExperiment() {
 	p.total_num_ims = {{TOTAL_NUM_IMS}};
 	
 	p.gt_side = [];
-	p.images_left = [];
-	p.images_right = [];
-	
-	
+	p.images_p0 = [];
+	p.images_ref = [];
+	p.images_p1 = [];
+		
 	{{SEQUENCE}}
 		
     return this;
@@ -180,7 +183,8 @@ function now() { return (new Date()).getTime() / 1000.; }
 
 function end() {
     $('#short_instructions').hide();
-	$('#score').html("You got " + (Math.round(100*(num_correct/(p.total_num_ims-p.npractice)))) + "% correct.<br><br>");
+	// $('#score').html("You got " + (Math.round(100*(num_correct/(p.total_num_ims-p.npractice)))) + "% correct.<br><br>");
+	$('#name').show();
     $('#done').show();
 	$("#submitButton").show();
 }
@@ -199,23 +203,29 @@ function continue_to_main_expt() {
 
 function next() {
 	
-	$('#feedbackA').html('');
+	$('#feedbackP0').html('');
 	$('#feedbackB').html('');
+	$('#feedbackP1').html('');
 	
-	$('#imageA').css('border','0px solid black');
-	$('#imageB').css('border','0px solid black');
+	$('#imageP0').css('border','1px solid black');
+	$('#imageRef').css('border','1px solid black');
+	$('#imageP1').css('border','1px solid black');
 	
-    if (p.is_practice && (p.im_num == p.npractice)) {
-    	
+    if (p.is_practice && (p.im_num == p.npractice)) { // end of practice
 		p.is_practice = false;
 		
     	$('#feedback').hide();	
-    	$('#imageA').hide();
-    	$('#imageB').hide();
-    	$('#imageA_div').hide();
-    	$('#imageB_div').hide();
+
+    	$('#imageP0').hide();
+    	$('#imageRef').hide();
+    	$('#imageP1').hide();
+
+    	$('#imageP0_div').hide();
+    	$('#imageRef_div').hide();
+    	$('#imageP1_div').hide();
+
     	$('#short_instructions').html("");
-        
+       
     	$('#experiment_start').show();
     	
     	return;
@@ -226,7 +236,7 @@ function next() {
 		
 		return;
 	}
-	
+
 	var display_time = 1000;
 	var fade_time = 200;
 	var isi = 300;
@@ -234,112 +244,85 @@ function next() {
 	var offset_time = 0;
 	
     $('#feedback').hide();	
-	$('#imageA').hide();
-	$('#imageB').hide();
+
 	$('#short_instructions').html("");
 	$('#short_instructions').show();
-	$('#imageA_div').show();
-	$('#imageB_div').show();
-	
+
+	$('#imageP0_div').show();
+	$('#imageRef_div').show();
+	$('#imageP1_div').show();
+
 	if (p.is_practice) {
 		$('#trial_num').html("<br><center>Practice trial " + (p.im_num+1) + " out of " + p.npractice + "</center>");
 	}
 	else {
 		$('#trial_num').html("<br><center>Trial " + (p.im_num+1-p.npractice) + " out of " + (p.total_num_ims-p.npractice) + "</center>");
 	}
-	
-	var imageA = document.getElementById('imageA');
-	imageA.src = p.images_left[p.im_num].src;
-	
+
 	if (first_trial) {
 		offset_time += isi;
 		first_trial = false;
 	}
-	$('#imageA').delay(offset_time+isi*3).fadeIn(0).delay(display_time).fadeOut(0); offset_time += isi*3+display_time;
 	
-	var imageB = document.getElementById('imageB');
-	imageB.src = p.images_right[p.im_num].src;
+	var imageP0 = document.getElementById('imageP0');
+	imageP0.src = p.images_p0[p.im_num].src;
+
+	var imageRef = document.getElementById('imageRef');
+	imageRef.src = p.images_ref[p.im_num].src;
+
+	var imageP1 = document.getElementById('imageP1');
+	imageP1.src = p.images_p1[p.im_num].src;
 	
-	$('#imageB').delay(offset_time+isi*2).fadeIn(0).delay(display_time).fadeOut(0); offset_time += isi*2+display_time;
+	$('#imageP0').show()
+	$('#imageRef').show()
+	$('#imageP1').show()
 	
-	fade_time = 50;
+	fade_time = 0;
 	setTimeout(function() { 
 		$('#trial_num').show(); 
-		$('#short_instructions').html("{{SHORT_INSTRUCTIONS}}");
-		$('#buttonA').fadeIn(fade_time);
-		$('#buttonB').fadeIn(fade_time);
+		$('#short_instructions').html("Which is more similar to the <b>middle reference image</b>?");
+		$('#buttonP0').fadeIn(fade_time);
+		// $('#buttonRef').fadeIn(fade_time);
+		$('#buttonP1').fadeIn(fade_time);
 	}, offset_time+100);
 }
 
-
 function submitAnswer(answer) {
 	
-	$('#buttonA').hide();
-	$('#buttonB').hide();
+	$('#buttonP0').hide();
+	// $('#buttonRef').hide();
+	$('#buttonP1').hide();
 	$('#trial_num').hide();
-	
+
+	if (answer=='left') {
+	   	$('#imageP0').css('border','6px solid green');
+	}
+   	else {
+   		$('#imageP1').css('border','6px solid green');
+   	}
+
+	$("#selection"+(p.im_num+1)).val(answer);
+	p.im_num = p.im_num+1;
+
 	if (p.is_practice) {
-		   var is_correct = (p.gt_side[p.im_num]!=answer);
+   		$('#imageP0').show();
+   		$('#imageRef').show();
+   		$('#imageP1').show();
+   		$('#imageP0_div').show();
+   		$('#imageRef_div').show();
+   		$('#imageP1_div').show();
 		
-		   if (is_correct) {
-	       	   $('#feedback').html('<img width=24px src="http://web.mit.edu/phillipi/Public/colorization/check.png"/><br><span style="color:green;">You are correct!</span>');
-		   }
-		   else {
-			   $('#feedback').html('<span style="color:#cc0000">Incorrect. That image was real.</span>');
-		   }
-		   
-		   if (answer=='left') {
-			   if (is_correct) {
-	      	   		$('#imageA').css('border','6px solid green');
-		   	   }
-			   else {
-			   		$('#imageA').css('border','6px solid #cc0000');
-			   }
-		   }
-		   else {
-			   if (is_correct) {
-	      	   		$('#imageB').css('border','6px solid green');
-		   	   }
-			   else {
-			   		$('#imageB').css('border','6px solid #cc0000');
-			   }
-		   }
-		
-		$('#feedback').show();
-		$('#short_instructions').html('');
-		if (p.gt_side[p.im_num]=='left') {
-			$('#feedbackA').html('Real');
-			$('#feedbackB').html('Fake');
-		}
-		else {
-			$('#feedbackA').html('Fake');
-			$('#feedbackB').html('Real');
-		}
-   		$('#imageA').show();
-   		$('#imageB').show();
-   		$('#imageA_div').show();
-   		$('#imageB_div').show();
-		
-		$("#selection"+(p.im_num+1)).val(answer);
-		
-		p.im_num = p.im_num+1;
-				
-		setTimeout(function() { next(); }, 2400);
+		setTimeout(function() { next(); }, 500);
 	}
 	else {
-		var is_correct = (p.gt_side[p.im_num]!=answer);
-		num_correct += is_correct;
+   		$('#imageP0').show();
+   		$('#imageRef').show();
+   		$('#imageP1').show();
+   		$('#imageP0_div').show();
+   		$('#imageRef_div').show();
+   		$('#imageP1_div').show();
 		
-		$('#imageA').hide();
-		$('#imageB').hide();
-		$('#imageA_div').hide();
-		$('#imageB_div').hide();
-		
-		$("#selection"+(p.im_num+1)).val(answer);
-		
-		p.im_num = p.im_num+1;
-				
-		next();
+		setTimeout(function() { next(); }, 500);
 	}
 }
 
@@ -368,10 +351,11 @@ function init() {
 	
 	makeExperiment();
 	
-	$('#imageA').hide();
-	$('#imageB').hide();
-	$('#buttonA').hide();
-	$('#buttonB').hide();
+	$('#imageP0').hide();
+	$('#imageRef').hide();
+	$('#imageP1').hide();
+	$('#buttonP0').hide();
+	$('#buttonP1').hide();
 	
 	$("#submitButton").hide();
 	
@@ -395,20 +379,23 @@ function restartExperiment() {
   <div id = "content_div">
 	<div id="images_div" style = "display:none" width = "100%" align = "center">
 	  <div id="short_instructions" style="display:none;"></div>
-      <div id="imageA_div" style="height:{{IM_DIV_HEIGHT}}px; width:{{IM_DIV_WIDTH}}px; display:inline-block; border:0px solid black;">
-		  <div id="feedbackA" style="display:block; height: 30px"></div><img id="imageA" style="display:block;" width="{{IM_WIDTH}}px"/>
-		  <div id="buttonA" style="position:relative; width:100%; height:100%"><button type="button" onclick="submitAnswer('left')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Left image</button></div>
+      <div id="imageP0_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
+		  <div id="feedbackP0" style="display:block; height: 30px"></div><img id="imageP0" style="display:block;" width="256px"/>
+		  <div id="buttonP0" style="position:relative; width:100%; height:100%"><button type="button" onclick="submitAnswer('left')" style="position:absolute; width:100%; height:20%; top:0; left:0; z-index: 10; font-size:14pt">Left</button></div>
 	  </div>
-	  <div id="imageB_div" style="height:{{IM_DIV_HEIGHT}}px; width:{{IM_DIV_WIDTH}}px; display:inline-block; border:0px solid black;">
-		  <div id="feedbackB" style="display:block; height: 30px"]></div><img id="imageB" style="display:block;" width="{{IM_WIDTH}}px"/>
-		  <div id="buttonB" style="position:relative; width:100%; height:100%"><button type="button" onclick="submitAnswer('right')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Right image</button></div>
+	  <div id="imageRef_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
+		  <div id="feedbackB" style="display:block; height: 30px"]></div><img id="imageRef" style="display:block;" width="256px"/>
+	  </div>
+	  <div id="imageP1_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
+		  <div id="feedbackP1" style="display:block; height: 30px"]></div><img id="imageP1" style="display:block;" width="256px"/>
+		  <div id="buttonP1" style="position:relative; width:100%; height:20%"><button type="button" onclick="submitAnswer('right')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Right</button></div>
 	  </div>
     </div>
 
     <div id= "feedback" align=center style="display:none"></div>
 	
     <div id = "experiment_start" style="width: 800px; margin: 0 auto; text-align: left; display:none">
-      <br>You've completed the practice exercise!  Click "Continue" to continue on to the main task. The main task will be identical except that you won't be told whether or not your guess was correct.</br>
+      <br>You've completed the practice exercise!  Click "Continue" to continue on to the main task. The main task will be identical.</br>
 	  <div id = "buttons_continue" align=center>
 		  <button id="continue_button" type="button" onClick="continue_to_main_expt()">Continue!</button>
 	  </div>
@@ -437,9 +424,14 @@ function restartExperiment() {
       	</div>
 	  </div>
 
+    <div id="name" align = "center" style = "display:none"> 
+        <div><textarea id="name" name="name" rows="1" cols="31">Name (optional)</textarea></div>
+    </div>
+
     <div id="done" align = "center" style = "display:none"> 
-        Thank you! You have completed the experiment.<br><br><div id="score"></div> 
-		<div><textarea id="comments" name="comments" rows="3" cols="31">Comments?</textarea></div><br>
+        Thank you! You have completed the experiment.
+        <!-- <br><br><div id="score"></div>  -->
+		<div><textarea id="comments" name="comments" rows="3" cols="31">Time Spent? Comments?</textarea></div><br>
 		Please click the submit button below to finish.
     </div>
 
