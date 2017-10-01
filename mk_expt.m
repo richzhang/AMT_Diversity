@@ -11,6 +11,7 @@ if (exist(opt.expt_name,'dir'))
     system(sprintf('rm -r ./%s',opt.expt_name));
 end
 mkdir(opt.expt_name);
+fprintf('Experiment name: %s\n',opt.expt_name)
 
 %%
 rng('shuffle');
@@ -130,8 +131,11 @@ for i=1:opt.Npairs
 end
 html = strrep(html, '{{SELECTION}}', s);
 
+fprintf('Html file made: %s\n',fullfile(opt.expt_name,'index.html'))
 fid = fopen(fullfile(opt.expt_name,'index.html'),'w');
 fprintf(fid,'%s',html);
 fclose(fid);
+
+
 end
 

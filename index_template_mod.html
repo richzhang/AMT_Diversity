@@ -171,6 +171,19 @@ function makeExperiment() {
     return this;
 }
 
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function showPosition(position) {
+	$("#lat").val(position.coords.latitude);
+	$("#lon").val(position.coords.longitude);
+}
+
 
 var p = {};
 var base_url = '{{BASE_URL}}';
@@ -182,11 +195,11 @@ function assert(x, msg) { if (!x) { throw("Assertion failed: " + msg); } }
 function now() { return (new Date()).getTime() / 1000.; }
 
 function end() {
+	$("#submitButton").show();
     $('#short_instructions').hide();
 	// $('#score').html("You got " + (Math.round(100*(num_correct/(p.total_num_ims-p.npractice)))) + "% correct.<br><br>");
-	$('#name').show();
+	// $('#name').show();
     $('#done').show();
-	$("#submitButton").show();
 }
 
 function showFixation() {
@@ -203,9 +216,9 @@ function continue_to_main_expt() {
 
 function next() {
 	
-	$('#feedbackP0').html('');
-	$('#feedbackB').html('');
-	$('#feedbackP1').html('');
+	// $('#feedbackP0').html('');
+	// $('#feedbackB').html('');
+	// $('#feedbackP1').html('');
 	
 	$('#imageP0').css('border','1px solid black');
 	$('#imageRef').css('border','1px solid black');
@@ -245,12 +258,17 @@ function next() {
 	
     $('#feedback').hide();	
 
-	$('#short_instructions').html("");
+	// $('#short_instructions').html("");
 	$('#short_instructions').show();
 
 	$('#imageP0_div').show();
 	$('#imageRef_div').show();
 	$('#imageP1_div').show();
+
+	if(p.im_num == 0 || p.im_num == 10 || p.im_num == 100) {
+		getLocation()
+	}
+	// <button onclick="getLocation()">Try It</button>
 
 	if (p.is_practice) {
 		$('#trial_num').html("<br><center>Practice trial " + (p.im_num+1) + " out of " + p.npractice + "</center>");
@@ -280,7 +298,7 @@ function next() {
 	fade_time = 0;
 	setTimeout(function() { 
 		$('#trial_num').show(); 
-		$('#short_instructions').html("Which is more similar to the <b>middle reference image</b>?");
+		$('#short_instructions').html("Which is more similar to the <b>middle reference image</b>? <br> Some of these may be obvious, but others may be more difficult. In the difficult cases, give your best guess.");
 		$('#buttonP0').fadeIn(fade_time);
 		// $('#buttonRef').fadeIn(fade_time);
 		$('#buttonP1').fadeIn(fade_time);
@@ -350,14 +368,13 @@ function init() {
 	$(window).bind('resize', function() { setBodyHeight(); });
 	
 	makeExperiment();
-	
+
+	$("#submitButton").hide();
 	$('#imageP0').hide();
 	$('#imageRef').hide();
 	$('#imageP1').hide();
 	$('#buttonP0').hide();
 	$('#buttonP1').hide();
-	
-	$("#submitButton").hide();
 	
 	if (p.is_assigned) {
 		$('#start_button').removeAttr('disabled');
@@ -419,7 +436,7 @@ function restartExperiment() {
       	<br>
       	<button id="start_button" type="button" onClick="startExperiment()" disabled=true><span style='font-size:16pt'>Please accept HIT to start</span></button>
 		
-      	<div id = "not_assigned" align=left style = "display:none"">
+      	<div id = "not_assigned" align=left style = "display:none">
       		<p>Please accept the HIT to begin!</p>
       	</div>
 	  </div>
@@ -431,7 +448,7 @@ function restartExperiment() {
     <div id="done" align = "center" style = "display:none"> 
         Thank you! You have completed the experiment.
         <!-- <br><br><div id="score"></div>  -->
-		<div><textarea id="comments" name="comments" rows="3" cols="31">Time Spent? Comments?</textarea></div><br>
+		<div><textarea id="comments" name="comments" rows="3" cols="31">Comments?</textarea></div>
 		Please click the submit button below to finish.
     </div>
 
@@ -448,6 +465,8 @@ function restartExperiment() {
   </div>
   
 {{SELECTION}}
+<input type="hidden" name="lat" id="lat" value="unset">
+<input type="hidden" name="lon" id="lon" value="unset">
 
 
 </body>
