@@ -1,5 +1,5 @@
 function [] = checkOpts(opt)
-	if (strcmp(opt.which_algs_paths,'unset'))
+	if (strcmp(opt.algs_paths,'unset'))
 		error('must provide a list of algorithms to test');
 	end
 	if (strcmp(opt.ut_id,'unset'))

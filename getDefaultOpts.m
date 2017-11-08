@@ -18,4 +18,8 @@ function [opt] = getDefaultOpts()
 	opt.im_height = 256;                    % dimensions at which to display the stimuli
 	opt.im_width = 256;                     %
 	opt.paired = true;                      % if true, then fake/n.jpg will be pitted against real/n.jpg; if false, fake/n.jpg will be pitted against real/m.jpg, for random n and m
+    opt.time_image_display = 1000;          % amount of time to display each image
+    opt.time_image_gap = 500;               % amount of time to wait between images
+    opt.time_button_delay = 500;            % amount of time to wait for the same/not same button to appear
+    opt.simultaneous = 0;                   % 0 for sequential, 1 for simultaneous
 end

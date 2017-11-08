@@ -17,7 +17,7 @@
 			
 			#content_div {
 				margin: auto;
-				width: 900px;
+				width: 600px;
 			}
 			
 			h3 {
@@ -88,7 +88,7 @@
 		</style>
 
 
-<script src="http://uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 <script type="text/javascript">
 (function(){
     var ut_id = "{{UT_ID}}";
@@ -135,16 +135,16 @@ function setBodyHeight() {
   $('body').height(wh); // body height = window height
 }
 
-function sequence_helper(image_p0,image_ref,image_p1) {
+function sequence_helper(image_p0,image_p1) {
 	var curr_im = null;
 
 	curr_im = new Image();
 	curr_im.src = base_url + image_p0 + '.png';
 	p.images_p0.push(curr_im);
 
-	curr_im = new Image();
-	curr_im.src = base_url + image_ref + '.png';
-	p.images_ref.push(curr_im);
+	// curr_im = new Image();
+	// curr_im.src = base_url + image_ref + '.png';
+	// p.images_ref.push(curr_im);
 
 	curr_im = new Image();
 	curr_im.src = base_url + image_p1 + '.png';
@@ -217,27 +217,26 @@ function continue_to_main_expt() {
 function next() {
 	
 	// $('#feedbackP0').html('');
-	// $('#feedbackB').html('');
 	// $('#feedbackP1').html('');
 	
 	$('#imageP0').css('border','1px solid black');
-	$('#imageRef').css('border','1px solid black');
 	$('#imageP1').css('border','1px solid black');
 	
     if (p.is_practice && (p.im_num == p.npractice)) { // end of practice
 		p.is_practice = false;
 		
-    	$('#feedback').hide();	
-
+    	// $('#feedback').hide();	
+    	$('#buttonSame').hide();
+    	$('#buttonDifferent').hide();
     	$('#imageP0').hide();
-    	$('#imageRef').hide();
     	$('#imageP1').hide();
 
+    	$('#button_div').hide();
     	$('#imageP0_div').hide();
-    	$('#imageRef_div').hide();
     	$('#imageP1_div').hide();
 
-    	$('#short_instructions').html("");
+    	$('#short_instructions').html("Are the images the <b>exact same</b> or <b>different</b>?");
+		$('#short_instructions').show();
        
     	$('#experiment_start').show();
     	
@@ -250,95 +249,111 @@ function next() {
 		return;
 	}
 
-	var display_time = 1000;
-	var fade_time = 200;
-	var isi = 300;
-	
+	// var display_time = 1000;
+	// var gap_time = 1000;
+	// var button_delay_time = 500;
+	var display_time = {{DISPLAY_TIME}};
+	var gap_time = {{GAP_TIME}};
+	var button_delay_time = {{BUTTON_DELAY_TIME}};
+	var fade_time = 100;
+	var isi = 100;
+	var simul = {{SIMUL}};
+
 	var offset_time = 0;
 	
-    $('#feedback').hide();	
-
-	// $('#short_instructions').html("");
+    // $('#feedback').hide();	
+	$('#short_instructions').html("Are the images the <b>exact same</b> or <b>different</b>? Even small differences count as different.");
 	$('#short_instructions').show();
-
 	$('#imageP0_div').show();
-	$('#imageRef_div').show();
 	$('#imageP1_div').show();
 
-	if(p.im_num == 0 || p.im_num == 10 || p.im_num == 100) {
-		getLocation()
-	}
-	// <button onclick="getLocation()">Try It</button>
-
 	if (p.is_practice) {
-		$('#trial_num').html("<br><center>Practice trial " + (p.im_num+1) + " out of " + p.npractice + "</center>");
+		$('#trial_num').html("<br><br><center>Practice trial " + (p.im_num+1) + " out of " + p.npractice + "</center>");
 	}
 	else {
-		$('#trial_num').html("<br><center>Trial " + (p.im_num+1-p.npractice) + " out of " + (p.total_num_ims-p.npractice) + "</center>");
+		$('#trial_num').html("<br><br><center>Trial " + (p.im_num+1-p.npractice) + " out of " + (p.total_num_ims-p.npractice) + "</center>");
 	}
 
 	if (first_trial) {
-		offset_time += isi;
+		// offset_time += isi;
 		first_trial = false;
 	}
-	
+
 	var imageP0 = document.getElementById('imageP0');
 	imageP0.src = p.images_p0[p.im_num].src;
-
-	var imageRef = document.getElementById('imageRef');
-	imageRef.src = p.images_ref[p.im_num].src;
+	// imageP0.src = "https://phillipi.github.io/pix2pix/images/facades2_GAN_BtoA/latest_net_G_val/images/output/" + (p.im_num+1) + ".jpg";
 
 	var imageP1 = document.getElementById('imageP1');
 	imageP1.src = p.images_p1[p.im_num].src;
+	// imageP1.src = "https://phillipi.github.io/pix2pix/images/facades2_cGAN_BtoA/latest_net_G_val/images/output/" + (p.im_num+1) + ".jpg";
+
+	$('#imageP0').show();
+	$('#imageP1').show();
+	$('#imageP0').delay(offset_time+isi).fadeIn(fade_time).delay(display_time).fadeOut(fade_time);
+	offset_time += (isi+display_time+fade_time+gap_time)*(1-simul);
+	// offset_time += (isi+display_time+fade_time+gap_time);
+	$('#imageP1').delay(offset_time+isi).fadeIn(fade_time).delay(display_time).fadeOut(fade_time);
+	offset_time += isi+display_time;
+	// $('#imageP0').delay(5000).fadeIn(0).fadeOut(0); // offset_time += isi*3+display_time;
+	// $('#imageP1').delay(5000).fadeIn(0).fadeOut(0); // offset_time += isi*3+display_time;
+	// .delay(1000).fadeout(0)
+	// $('#imageP0').delay(1000).fadeOut(500);
+	// $('#imageP1').delay(1000).fadeOut(500);
+	// .delay(display_time).fadeOut(0);
+	// .delay(display_time).fadeOut(0)
 	
-	$('#imageP0').show()
-	$('#imageRef').show()
-	$('#imageP1').show()
+	// $('#imageP0_div').hide();
+	// $('#imageP1_div').hide();
+	$('#imageP0').hide();
+	$('#imageP1').hide();
+
+	// imageP0.src = "https://phillipi.github.io/pix2pix/images/facades2_cGAN_BtoA/latest_net_G_val/images/output/" + (p.im_num+1) + ".jpg";
+	// imageP1.src = "https://phillipi.github.io/pix2pix/images/facades2_GAN_BtoA/latest_net_G_val/images/output/" + (p.im_num+1) + ".jpg";
+
+	$('#button_div').show();
 	
-	fade_time = 0;
+	fade_time = 200;
 	setTimeout(function() { 
 		$('#trial_num').show(); 
-		$('#short_instructions').html("Which is more similar to the <b>middle reference image</b>? <br> Some of these may be obvious, but others may be more difficult. In the difficult cases, give your best guess.");
-		$('#buttonP0').fadeIn(fade_time);
-		// $('#buttonRef').fadeIn(fade_time);
-		$('#buttonP1').fadeIn(fade_time);
-	}, offset_time+100);
+		$('#short_instructions').html("Are the images the <b>same</b> or <b>different</b>?");
+		$('#buttonSame').fadeIn(fade_time);
+		$('#buttonDifferent').fadeIn(fade_time);
+	}, offset_time+button_delay_time+200);
 }
 
 function submitAnswer(answer) {
 	
-	$('#buttonP0').hide();
-	// $('#buttonRef').hide();
-	$('#buttonP1').hide();
+	$('#buttonSame').hide();
+	$('#buttonDifferent').hide();
 	$('#trial_num').hide();
 
-	if (answer=='left') {
-	   	$('#imageP0').css('border','6px solid green');
-	}
-   	else {
-   		$('#imageP1').css('border','6px solid green');
-   	}
+	// if (answer=='same') {
+	//    	// $('#imageP0').css('border','6px solid green');
+	//    	$('#buttonSame').css('border','6px solid black');
+	// }
+ //   	else {
+ //   		// $('#imageP1').css('border','6px solid green');
+	//    	$('#buttonDifferent').css('border','6px solid black');
+ //   	}
 
 	$("#selection"+(p.im_num+1)).val(answer);
 	p.im_num = p.im_num+1;
 
 	if (p.is_practice) {
-   		$('#imageP0').show();
-   		$('#imageRef').show();
-   		$('#imageP1').show();
+   		// $('#imageP0').show();
+   		// $('#imageP1').show();
    		$('#imageP0_div').show();
-   		$('#imageRef_div').show();
    		$('#imageP1_div').show();
+   		$('#button_div').show();
 		
 		setTimeout(function() { next(); }, 500);
 	}
 	else {
-   		$('#imageP0').show();
-   		$('#imageRef').show();
-   		$('#imageP1').show();
+   		// $('#imageP0').show();
+   		// $('#imageP1').show();
    		$('#imageP0_div').show();
-   		$('#imageRef_div').show();
    		$('#imageP1_div').show();
+   		$('#button_div').show();
 		
 		setTimeout(function() { next(); }, 500);
 	}
@@ -371,10 +386,9 @@ function init() {
 
 	$("#submitButton").hide();
 	$('#imageP0').hide();
-	$('#imageRef').hide();
 	$('#imageP1').hide();
-	$('#buttonP0').hide();
-	$('#buttonP1').hide();
+	$('#buttonSame').hide();
+	$('#buttonDifferent').hide();
 	
 	if (p.is_assigned) {
 		$('#start_button').removeAttr('disabled');
@@ -395,18 +409,20 @@ function restartExperiment() {
   <body>
   <div id = "content_div">
 	<div id="images_div" style = "display:none" width = "100%" align = "center">
-	  <div id="short_instructions" style="display:none;"></div>
-      <div id="imageP0_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
-		  <div id="feedbackP0" style="display:block; height: 30px"></div><img id="imageP0" style="display:block;" width="256px"/>
-		  <div id="buttonP0" style="position:relative; width:100%; height:100%"><button type="button" onclick="submitAnswer('left')" style="position:absolute; width:100%; height:20%; top:0; left:0; z-index: 10; font-size:14pt">Left</button></div>
-	  </div>
-	  <div id="imageRef_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
-		  <div id="feedbackB" style="display:block; height: 30px"]></div><img id="imageRef" style="display:block;" width="256px"/>
-	  </div>
-	  <div id="imageP1_div" style="height:258px; width:258px; display:inline-block; border:0px solid black;">
-		  <div id="feedbackP1" style="display:block; height: 30px"]></div><img id="imageP1" style="display:block;" width="256px"/>
-		  <div id="buttonP1" style="position:relative; width:100%; height:20%"><button type="button" onclick="submitAnswer('right')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Right</button></div>
-	  </div>
+		<div id="short_instructions" style="display:none;"></div>
+     	<div id="imageP0_div" style="height:258px; width:288px; display:inline-block; border:0px solid black;">
+			<div id="feedbackSame" style="display:block; height: 30px"></div><img id="imageP0" style="display:block;" width="256px"/>
+			<!-- <div id="buttonSame" style="position:relative; width:100%; height:100%"><button type="button" onclick="submitAnswer('same')" style="position:absolute; width:100%; height:20%; top:0; left:0; z-index: 10; font-size:14pt">Same</button></div> -->
+	  	</div>
+	 	<div id="imageP1_div" style="height:258px; width:288px; display:inline-block; border:0px solid black;">
+			<div id="feedbackDifferent" style="display:block; height: 30px"]></div><img id="imageP1" style="display:block;" width="256px"/>
+			<!-- <div id="buttonDifferent" style="position:relative; width:100%; height:20%"><button type="button" onclick="submitAnswer('different')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Different</button></div> -->
+	  	</div>
+	  	<br><br>
+		<div id="button_div" style="height:100px; width:258px; display:inline-block; border:0px solid black;">
+			<div id="buttonSame" style="position:relative; width:100%; height:50%"><button type="button" onclick="submitAnswer('same')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Same</button></div>
+			<div id="buttonDifferent" style="position:relative; width:100%; height:50%"><button type="button" onclick="submitAnswer('different')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt">Different</button></div>
+		</div>
     </div>
 
     <div id= "feedback" align=center style="display:none"></div>
@@ -424,8 +440,6 @@ function restartExperiment() {
     </div>
 
     <br>
-    <br>
-    
     
     <div id="long_info" style = "width:100%">
         {{INSTRUCTIONS}}
@@ -465,8 +479,8 @@ function restartExperiment() {
   </div>
   
 {{SELECTION}}
-<input type="hidden" name="lat" id="lat" value="unset">
-<input type="hidden" name="lon" id="lon" value="unset">
+<!-- <input type="hidden" name="lat" id="lat" value="unset"> -->
+<!-- <input type="hidden" name="lon" id="lon" value="unset"> -->
 
 
 </body>
